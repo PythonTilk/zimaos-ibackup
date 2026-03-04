@@ -1,0 +1,7 @@
+fastapi[all]==0.104.1
+uvicorn==0.24.0.post1
+sqlalchemy==2.0.23
+pydantic==2.5.2
+apscheduler==3.10.4
+sqlite-utils==3.35.2
+python-multipart==0.0.6

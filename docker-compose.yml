@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  zimaos-ibackup:
+    build: .
+    container_name: zimaos-ibackup
+    network_mode: host
+    privileged: true
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    volumes:
+      - /var/lib/lockdown:/var/lib/lockdown
+      - /dev/bus/usb:/dev/bus/usb
+      - /var/run/udev:/var/run/udev:ro
+      - ./config:/app/config
+      - ./backups:/backups
+    restart: unless-stopped
