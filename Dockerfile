@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     libimobiledevice-utils \
     usbmuxd \
     avahi-daemon \
-    libimobiledevice6 \
+    libimobiledevice-1.0-6 \
     python3-dev \
     gcc \
     curl \
