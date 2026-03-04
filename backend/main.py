@@ -1,5 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
@@ -39,10 +40,6 @@ init_db()
 def startup_event():
     logger.info("Starting background scheduler...")
     start_scheduler()
-
-
-# Mount frontend
-app.mount("/static", StaticFiles(directory="frontend/dist", html=True), name="static")
 
 
 @app.get("/api/devices")
@@ -165,3 +162,25 @@ def get_logs(udid: str | None = None):
             "SELECT * FROM logs ORDER BY timestamp DESC LIMIT 50"
         ).fetchall()
     return [dict(log) for log in logs]
+
+
+# Serve React frontend - mount AFTER all API routes
+# Serve index.html for the root path (SPA entry point)
+@app.get("/")
+async def serve_root():
+    return FileResponse("frontend/dist/index.html")
+
+
+# Serve static assets (JS, CSS, images)
+app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+
+# Catch-all for client-side routing - serve index.html for any non-API path
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    # Check if the file exists in dist
+    file_path = f"frontend/dist/{full_path}"
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    # Otherwise serve index.html for client-side routing
+    return FileResponse("frontend/dist/index.html")
