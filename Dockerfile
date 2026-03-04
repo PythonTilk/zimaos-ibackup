@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     python3-dev \
     cython3 \
+    clang \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
@@ -49,9 +50,15 @@ RUN git clone https://github.com/libimobiledevice/libimobiledevice.git && \
     PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./autogen.sh --without-cython && \
     make -j$(nproc) && make install
 
-RUN git clone https://github.com/libimobiledevice/usbmuxd.git && \
-    cd usbmuxd && \
-    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./autogen.sh --without-systemd && \
+RUN git clone https://github.com/tihmstar/libgeneral.git && \
+    cd libgeneral && \
+    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./autogen.sh && \
+    make -j$(nproc) && make install
+
+RUN git clone https://github.com/tihmstar/usbmuxd2.git && \
+    cd usbmuxd2 && \
+    sed -i 's/-std=c++20/-std=c++17/g' configure.ac && \
+    CC=clang CXX=clang++ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./autogen.sh && \
     make -j$(nproc) && make install
 
 # Stage 3: Final Image
